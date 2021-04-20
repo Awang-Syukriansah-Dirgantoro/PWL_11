@@ -2,29 +2,37 @@
 
 namespace App\Http\Requests;
 
+use App\Traits\ApiResponse;
+use Dotenv\Validator;
+use Facade\FlareClient\Http\Response;
+use GuzzleHttp\Psr7\Response as Psr7Response;
+use Illuminate\Contracts\Validation\Validator as ValidationValidator;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\Client\Response as ClientResponse;
+use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Http\Response as HttpResponse;
+use Illuminate\Support\Facades\Validator as FacadesValidator;
+use Illuminate\Validation\Validator as IlluminateValidationValidator;
+use PHPUnit\Util\Xml\Validator as XmlValidator;
+use Ramsey\Uuid\Rfc4122\Validator as Rfc4122Validator;
 
-class ApiRequest extends FormRequest
+abstract class ApiRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     *
-     * @return bool
-     */
-    public function authorize()
+    use ApiResponse;
+
+    abstract public function rules();
+
+    protected function failedValidation(ValidationValidator $validator)
     {
-        return false;
+        throw new HttpResponseException($this->apiError($validator->errors(),
+            HttpResponse::HTTP_UNPROCESSABLE_ENTITY,
+        ));
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array
-     */
-    public function rules()
+    protected function failedAuthorization()
     {
-        return [
-            //
-        ];
+        throw new HttpResponseException($this->apiError(null,
+            HttpResponse::HTTP_UNAUTHORIZED
+        ));
     }
 }
