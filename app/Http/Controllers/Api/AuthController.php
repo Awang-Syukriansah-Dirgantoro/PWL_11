@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Traits\ApiResponse;
 use Facade\FlareClient\Http\Response;
 use Illuminate\Auth\Events\Login;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response as HttpResponse;
 use Illuminate\Support\Facades\Auth;
@@ -20,7 +21,7 @@ class AuthController extends Controller
 
     public function register(RegisterRequest $request)
     {
-        $validated = $request->validate();
+        $validated = $request->validated();
         $user = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
@@ -39,11 +40,11 @@ class AuthController extends Controller
     {
         $validated = $request->validated();
 
-        if(!Auth::attempt([$validated])) {
+        if(!Auth::attempt($validated)) {
             return $this->apiError('Credentials not match', HttpResponse::HTTP_UNAUTHORIZED);
         }
 
-        $user = User::where('email',$validated['email'])->first();
+        $user = User::where('email', $validated['email'])->first();
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return $this->apiSuccess([
@@ -51,5 +52,15 @@ class AuthController extends Controller
             'token_type' => 'Bearer',
             'user' => $user,
         ]);
+    }
+
+    public function logout()
+    {
+        try {
+            auth()->user()->tokens()->delete();
+            return $this->apiSuccess('Token Revoked');
+        } catch (\Throwable $th) {
+            throw new HttpResponseException($this->apiError(null, HttpResponse::HTTP_INTERNAL_SERVER_ERROR));
+        }
     }
 }

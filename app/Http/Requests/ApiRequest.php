@@ -16,7 +16,7 @@ abstract class ApiRequest extends FormRequest
     protected function failedValidation(Validator $validator)
     {
         throw new HttpResponseException($this->apiError($validator->errors(),
-            Response::HTTP_UNPROCESSABLE_ENTITY,
+            Response::HTTP_UNPROCESSABLE_ENTITY,    
         ));
     }
 
