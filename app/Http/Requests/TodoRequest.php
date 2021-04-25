@@ -28,7 +28,9 @@ class TodoRequest extends ApiRequest
     public function rules()
     {
         return [
-            //
+            'todo' => 'required|string|max:255',
+            'label' => 'nullable|string',
+            'done' => 'nullable|boolean',
         ];
     }
 }
