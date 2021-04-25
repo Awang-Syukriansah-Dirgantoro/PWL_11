@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Todo;
+use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 
 class TodoController extends Controller
 {
+    use ApiResponse
     /**
      * Display a listing of the resource.
      *
