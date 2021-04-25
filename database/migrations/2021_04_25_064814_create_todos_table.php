@@ -31,8 +31,6 @@ class CreateTodosTable extends Migration
      */
     public function down()
     {
-        Schema::table('todos', function (Blueprint $table) {
-            //
-        });
+        Schema::dropIfExists('todos');
     }
 }
